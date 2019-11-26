@@ -10,6 +10,8 @@ This script is designed for use in situations where you do not have internet acc
 
 **Pull requests/suggestions welcome!**
 
+![](screenshot01.png)
+
 ### Features
 * 5 different enumeration scripts, including:
     * [linux-smart-enumeration](https://github.com/diego-treitos/linux-smart-enumeration/)
@@ -23,6 +25,7 @@ This script is designed for use in situations where you do not have internet acc
 * Provides an automatic download and update feature
 * Custom directory option, for when you know you have access to a specific directory (default is /tmp)
 * Interactive menu lets you choose whether to run only enumeration, only expoit suggestion, or both
+* Checks for Python 2 and 3 and lets you know which scripts will be skipped if Python is missing
 
 ### Usage
 ```
