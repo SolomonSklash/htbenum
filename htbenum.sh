@@ -51,13 +51,15 @@ banner;
 # Get all scripts, overwrite if they already exist
 if [[ $1 == "update" ]]; then
 		echo -e "${GREEN}[i] Updating all tools...${NC}";
+		# Enumeration scripts
 		wget -nv "https://github.com/diego-treitos/linux-smart-enumeration/raw/master/lse.sh" -O lse.sh;
 		wget -nv "https://raw.githubusercontent.com/rebootuser/LinEnum/master/LinEnum.sh" -O linenum.sh;
 		wget -nv "https://raw.githubusercontent.com/sleventyeleven/linuxprivchecker/master/linuxprivchecker.py" -O linuxprivchecker.py;
 		wget -nv "https://raw.githubusercontent.com/initstring/uptux/master/uptux.py" -O uptux.py;
+		wget -nv "https://raw.githubusercontent.com/Anon-Exploiter/SUID3NUM/master/suid3num.py" -O suid3num.py;
+		# Exploit suggestion scripts
 		wget -nv "https://raw.githubusercontent.com/belane/linux-soft-exploit-suggester/master/linux-soft-exploit-suggester.py" -O les-soft.py;
 		wget -nv "https://raw.githubusercontent.com/offensive-security/exploit-database/master/files_exploits.csv" -O files_exploits.csv;
-		wget -nv "https://raw.githubusercontent.com/Anon-Exploiter/SUID3NUM/master/suid3num.py" -O suid3num.py;
 		wget -nv "https://raw.githubusercontent.com/mzet-/linux-exploit-suggester/master/linux-exploit-suggester.sh" -O les.sh;
 		echo -e "${GREEN}[i] Update complete!${NC}";
 		exit 0;
