@@ -1,6 +1,11 @@
 # htbenum
 *A Linux enumeration script for Hack The Box*
 
+![GitHub](https://img.shields.io/github/license/SolomonSklash/htbenum.svg?style=flat-square)
+![Github language](https://img.shields.io/github/languages/top/SolomonSklash/htbenum.svg?style=flat-square)
+![GitHub issues](https://img.shields.io/github/issues/SolomonSklash/htbenum.svg?style=flat-square)
+![Github contributors](https://img.shields.io/github/contributors/SolomonSklash/htbenum.svg?style=flat-square)
+
 This script is designed for use in situations where you do not have internet access on a Linux host and would like to run enumeration and exploit suggestion scripts, such as Hack The Box. I find myself running a similar set of scripts when I get an initial foothold on a Linux box, and this script helps automate the process of downloading the latest version of each enumeration script, making it executable, and running it, as well as sending output to a file for later review.
 
 **Pull requests/suggestions welcome!**
