@@ -52,11 +52,12 @@ PORT="";
 DIR="/tmp";
 WEB="";
 UPDATE="";
+UPLOAD="";
 # Python
 PY2="";
 PY3="";
 
-while getopts ":hi:p:o:wu" opt; do
+while getopts ":hi:p:o:wur" opt; do
 		case ${opt} in
 				h )
 						banner;
@@ -80,6 +81,9 @@ while getopts ":hi:p:o:wu" opt; do
 						;;
 				u )
 						UPDATE=1;
+						;;
+				r )
+						UPLOAD=1;
 						;;
 				* ) # Invalid option
 						echo -e "$RED""[!] Invalid Option: -$OPTARG" 1>&2;
@@ -281,6 +285,40 @@ function runtools () {
 		fi
 }
 
+# Upload reports
+function upload () {
+	# Check for curl
+	# zip up linenum-report before transferring
+	# check that each file exists before uploading
+	# 1. lse-report.txt
+	# 2. linenum-report (zip this!) 
+	# 3. linuxprivchecker-report.txt
+	# 4. uptux-report.txt
+	# 5. suid3num-report.txt
+	# 6. les-report.txt
+	# 7. les-soft-report.txt
+
+	REPORTS=( "lse-report.txt" "linenum-report.tar" "linuxprivchecker-report.txt" "uptux-report.txt" "suid3num-report.txt" "les-report.txt" "les-soft-report.txt" )
+
+	# tar up linenum-report
+	if [[ -e "$DIR"/linenum-report ]]; then
+			tar cvf linenum-report.tar "$DIR"/linenum-report;
+	fi
+
+	CURL=$(command -v curl);
+	if [[ "$CURL" == ""  ]]; then
+			echo -e "${ORANGE}[!] curl not found, skipping report upload!${NC}";
+	else
+			for report in "${REPORTS[@]}"
+			do
+					if [[ -e "$report" ]]; then
+							# curl -X PUT -F
+							echo "The report to upload is $report.";
+					fi
+			done
+	fi
+}
+
 # Start main script execution
 
 if [[ "$ARGS" -eq 0  ]]; then
@@ -309,6 +347,9 @@ if [[ "$WEB" -eq 1  ]]; then
 else
 	download;
 	runtools;	
+	if [[ "$UPLOAD" -eq 1  ]]; then
+			upload;
+	fi
 fi
 
 echo -e "${GREEN}********************************************************************************${NC}";
