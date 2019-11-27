@@ -24,9 +24,7 @@ function banner () {
 	echo -e "\n${ORANGE}By Solomon Sklash - solomonsklash@0xfeed.io ${NC}\n";
 }
 
-# Check for no args
-if [[ "$1" == "" ]]; then
-		banner;
+function usage () {
 		echo -e "${GREEN} Usage:";
 		echo -e "${GREEN}         ./htbenum.sh [update] IP port [directory]\n";
 		echo -e "${GREEN}         htbenum is designed do Linux enumeration in environments like Hack The Box where ";
@@ -45,13 +43,52 @@ if [[ "$1" == "" ]]; then
 		echo -e "${GREEN}         IP - IP address of the listening web server used to tools for download.";
 		echo -e "${GREEN}         port - TCP port of the listening web server used to tools for download.";
 		echo -e "${GREEN}         directory - custom download and report creation directory (default is /tmp).";
-		exit 0;
-fi
+}
 
-banner;
+# Arguments
+ARGS=$#;
+IP="";
+PORT="";
+DIR="/tmp";
+WEB="";
+UPDATE="";
+# Python
+PY2="";
+PY3="";
 
-# Get all scripts, overwrite if they already exist
-if [[ $1 == "update" ]]; then
+while getopts ":hi:p:o:wu" opt; do
+		case ${opt} in
+				h )
+						banner;
+						usage;
+						exit 0;
+						;;
+				i )
+						IP=$OPTARG;
+						;;
+				p )
+						PORT=$OPTARG;
+						;;
+				o )
+						DIR=$OPTARG;
+						;;
+				w )
+						WEB=1;
+						;;
+				u )
+						UPDATE=1;
+						;;
+				* ) # Invalid option
+						echo -e "$RED""[!] Invalid Option: -$OPTARG" 1>&2;
+						usage;
+						exit 1;
+						;;
+		esac
+done
+shift $((OPTIND -1));
+
+function update () {
+		# Get all scripts, overwrite if they already exist
 		echo -e "${GREEN}[i] Updating all tools...${NC}";
 		# Enumeration scripts
 		wget -nv "https://github.com/diego-treitos/linux-smart-enumeration/raw/master/lse.sh" -O lse.sh;
@@ -65,42 +102,23 @@ if [[ $1 == "update" ]]; then
 		wget -nv "https://raw.githubusercontent.com/mzet-/linux-exploit-suggester/master/linux-exploit-suggester.sh" -O les.sh;
 		echo -e "${GREEN}[i] Update complete!${NC}";
 		exit 0;
-fi
-
-IP=$1;
-PORT=$2;
-
-# Check if custom directory parameter exists
-if [[ "$3" != "" ]]; then
-		DIR="$3";
-else
-		DIR="/tmp";
-fi
-
-# Check for IP and port
-if [[ "$IP" == "" || "$PORT" == "" ]]; then
-		echo -e "${RED}[!] IP or port not provided!${NC}";
-		exit 1;
-fi
-
-# Check for web server parameter
-if [[ "$4" != "" ]] ; then
-		WEBSERVER=1;
-fi
+}
 
 # Check Python versions available
-PY2=$(command -v python2);
-if [[ "$PY2" == "" ]]; then
-	echo -e "${ORANGE}[!] Python 2 was not found, not all enumeration tools may run!${NC}";
-else
-	echo -e "${GREEN}[i] Python 2 was found!${NC}";
-fi
-PY3=$(command -v python3);
-if [[ "$PY3" == "" ]]; then
-	echo -e "${ORANGE}[!] Python 3 was not found, not all enumeration tools may run and local web server is unavailable!${NC}";
-else
-	echo -e "${GREEN}[i] Python 3 was found!${NC}";
-fi
+function pycheck () {
+		PY2=$(command -v python2);
+		if [[ "$PY2" == "" ]]; then
+			echo -e "${ORANGE}[!] Python 2 was not found, not all enumeration tools may run!${NC}";
+		else
+			echo -e "${GREEN}[i] Python 2 was found!${NC}";
+		fi
+		PY3=$(command -v python3);
+		if [[ "$PY3" == "" ]]; then
+			echo -e "${ORANGE}[!] Python 3 was not found, not all enumeration tools may run and local web server is unavailable!${NC}";
+		else
+			echo -e "${GREEN}[i] Python 3 was found!${NC}";
+		fi
+}
 
 # Notifcation of tool starting
 function start () {
@@ -260,7 +278,30 @@ function runtools () {
 		fi
 }
 
-if [[ "$WEBSERVER" -eq 1  ]]; then
+# Start main script execution
+
+if [[ "$ARGS" -eq 0  ]]; then
+		banner;
+		usage;
+		exit 0;
+fi
+
+banner;
+
+if [[ "$UPDATE" -eq 1 ]]; then
+		update;
+fi
+
+# Check for IP and port
+if [[ "$IP" == "" || "$PORT" == "" ]]; then
+		echo -e "${RED}[!] IP or port not provided!${NC}";
+		exit 1;
+fi
+
+# Python check
+pycheck;
+
+if [[ "$WEB" -eq 1  ]]; then
 	webserver;
 fi
 
