@@ -298,11 +298,11 @@ function upload () {
 	# 6. les-report.txt
 	# 7. les-soft-report.txt
 
-	REPORTS=( "lse-report.txt" "linenum-report.tar" "linuxprivchecker-report.txt" "uptux-report.txt" "suid3num-report.txt" "les-report.txt" "les-soft-report.txt" )
+	REPORTS=( "lse-report.txt" "linenum-report.tar.gz" "linuxprivchecker-report.txt" "uptux-report.txt" "suid3num-report.txt" "les-report.txt" "les-soft-report.txt" )
 
 	# tar up linenum-report
 	if [[ -e "$DIR"/linenum-report ]]; then
-			tar cvf linenum-report.tar "$DIR"/linenum-report;
+			tar czf linenum-report.tar.gz "$DIR"/linenum-report;
 	fi
 
 	CURL=$(command -v curl);
