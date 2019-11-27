@@ -300,18 +300,22 @@ function upload () {
 
 	REPORTS=( "lse-report.txt" "linenum-report.tar.gz" "linuxprivchecker-report.txt" "uptux-report.txt" "suid3num-report.txt" "les-report.txt" "les-soft-report.txt" )
 
-	# tar up linenum-report
-	if [[ -e "$DIR"/linenum-report ]]; then
-			tar czf linenum-report.tar.gz "$DIR"/linenum-report;
-	fi
 
 	CURL=$(command -v curl);
 	if [[ "$CURL" == ""  ]]; then
 			echo -e "${ORANGE}[!] curl not found, skipping report upload!${NC}";
 	else
+			echo -e "${BLUE}[*] Beginning report upload!${NC}";
+
+			# tar up linenum-report
+			if [[ -e "$DIR"/linenum-report ]]; then
+					tar czf linenum-report.tar.gz "$DIR"/linenum-report;
+			fi
+			
+			# upload each report
 			for report in "${REPORTS[@]}"
 			do
-					if [[ -e "$report" ]]; then
+					if [[ -e "$DIR/$report" ]]; then
 							# curl -X PUT -F
 							echo "The report to upload is $report.";
 					fi
