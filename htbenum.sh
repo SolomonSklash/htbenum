@@ -65,6 +65,9 @@ while getopts ":hi:p:o:wu" opt; do
 						;;
 				i )
 						IP=$OPTARG;
+						if [[ "$IP" == "localhost"  ]]; then
+								IP="127.0.0.1";
+						fi
 						;;
 				p )
 						PORT=$OPTARG;
