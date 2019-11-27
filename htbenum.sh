@@ -211,7 +211,7 @@ function runtools () {
 						echo -e "${ORANGE}[!] No version of Python found, skipping Uptux!${NC}";
 				else
 						start "Uptux";
-						python "$DIR"/uptux.py -n | tee uptux-report.txt;
+						python -u "$DIR"/uptux.py -n | tee "$DIR"/uptux-report.txt;
 						complete "Uptux";
 				fi
 				if [[ "$PY2" == "" && "$PY3" == "" ]]; then
@@ -259,7 +259,7 @@ function runtools () {
 						echo -e "${ORANGE}[!] No version of Python found, skipping Uptux!${NC}";
 				else
 						start "Uptux";
-						python "$DIR"/uptux.py -n | tee uptux-report.txt;
+						python "$DIR"/uptux.py -n | tee "$DIR"/uptux-report.txt;
 						complete "Uptux";
 				fi
 				if [[ "$PY2" == "" && "$PY3" == "" ]]; then
@@ -309,7 +309,7 @@ function upload () {
 
 			# tar up linenum-report
 			if [[ -e "$DIR"/linenum-report ]]; then
-					tar czf linenum-report.tar.gz "$DIR"/linenum-report;
+					tar czf "$DIR"/linenum-report.tar.gz "$DIR"/linenum-report;
 			fi
 			
 			# upload each report
