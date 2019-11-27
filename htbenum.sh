@@ -309,6 +309,7 @@ function upload () {
 
 			# tar up linenum-report
 			if [[ -e "$DIR"/linenum-report ]]; then
+					echo -e "${GREEN}[i] Tar-ing up linenum-report.${NC}";
 					tar czf "$DIR"/linenum-report.tar.gz "$DIR"/linenum-report;
 			fi
 			
@@ -316,7 +317,8 @@ function upload () {
 			for report in "${REPORTS[@]}"
 			do
 					if [[ -e "$DIR/$report" ]]; then
-							# curl -X PUT -F
+							echo -e "${GREEN}[i] Uploading $report to the host server..${NC}";
+							curl -X PUT --upload-file "$DIR/$report" http://"$IP":"$PORT";
 							echo "The report to upload is $report.";
 					fi
 			done
