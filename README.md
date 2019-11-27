@@ -77,7 +77,7 @@ By Solomon Sklash - solomonsklash@0xfeed.io
 root@kali:~/htbenum#  
 ```
 
-Then, start the builtin web server to host the tools an receive the completed reports. You can use you own web server to host the tools, but it will need to support PUT requests for the report uploads.
+Then, start the builtin web server to host the tools and receive the completed reports. The server requires Python 3. You can use you own web server to host the tools, but it will need to support PUT requests for the report uploads.
 
 ```
 root@kali:~/htbenum# ./htbenum.sh -i 10.10.14.1 -p 80 -w
