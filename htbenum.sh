@@ -303,6 +303,9 @@ pycheck;
 
 if [[ "$WEB" -eq 1  ]]; then
 	webserver;
+else
+	download;
+	runtools;	
 fi
 
 echo -e "${GREEN}********************************************************************************${NC}";
